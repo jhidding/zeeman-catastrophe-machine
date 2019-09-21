@@ -35,6 +35,8 @@ format := $(format)+multiline_tables+bracketed_spans
 
 html_args := -s --lua-filter scripts/annotate-code-blocks.lua
 html_args += --filter pandoc-fignos
+html_args += --filter pandoc-eqnos
+html_args += --syntax-definition scripts/elm.xml
 html_args += --mathjax --toc --base-header-level=2 --css style.css
 
 weave: docs/index.html docs/machine.html docs/zeeman.js docs/style.css

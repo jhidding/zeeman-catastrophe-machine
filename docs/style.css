@@ -126,3 +126,8 @@ figure img
     width: 100%;
     margin: 0 auto 0 auto;
 }
+
+.eqnos { display: inline-block; position: relative; width: 100%; }
+.eqnos br { display: none; }
+.eqnos-number { position: absolute; right: 0em; top: 50%; line-height: 0; }
+

@@ -14,20 +14,26 @@ type Options
 
 type alias Model =
     { machine : Machine
+    , pointerLock : Bool
     }
 
 init : Model
-init = Model (Machine (Position 0 0) 0.0)
+init = Model { f = Position -3 0, p = Position 0 0, theta = 0.0 }
+             False
 
 update : Msg -> Model -> Model
-update (MouseMove p) m =
-    let x = p.x / 1000.0
-        y = p.y / 1000.0
-        oldMachine = m.machine
-    in { m | machine = { oldMachine | pointer = Position x y } }
+update msg m = case msg of
+    (MouseMove p) ->
+        if not m.pointerLock then
+            let x = p.x / 1000.0 - 3.5
+                y = p.y / 1000.0 - 1.5
+                oldMachine = m.machine
+            in { m | machine = minimizeMachine { oldMachine | p = Position x y } }
+        else
+            m
+    MouseClick ->
+        { m | pointerLock = not m.pointerLock }
 
 view : Model -> Html Msg
-view m = div [] [ text ((fromFloat m.machine.pointer.x) ++ " , "
-                        ++ (fromFloat m.machine.pointer.y))
-                , renderMachine m.machine ]
+view m = div [] [ renderMachine m.machine ]
 
