@@ -15,6 +15,7 @@
 #| * Pandoc >= 2.3 (with Lua filter support)
 #| * pandoc-eqnos, pandoc-fignos (`pip install`)
 #| * inotify-tools (for watching)
+#| * browser-sync (`npm install -g browser-sync`, for watching)
 #|
 #| Targets
 #| -------
@@ -29,7 +30,7 @@
 #|
 #| * `V=1`: verbose output
 
-.PHONY: weave clean help
+.PHONY: weave clean help watch serve browser-sync
 
 help:
 	@ grep -e '^#|' Makefile \
@@ -47,7 +48,7 @@ html_args += --filter pandoc-eqnos
 html_args += --syntax-definition scripts/elm.xml
 html_args += --mathjax --toc --base-header-level=2 --css style.css
 
-weave: docs/index.html docs/machine.html docs/zeeman.js docs/style.css
+weave: docs/index.html docs/zeeman.js docs/style.css
 
 docs:
 	mkdir docs
@@ -73,6 +74,11 @@ watch: weave
 		inotifywait -e close_write lit/*.md src/*.elm static/*; \
 		make weave; \
 	done
+
+browser-sync:
+	browser-sync start -s docs -f . --no-notify
+
+serve: watch browser-sync
 
 # To be verbose, run: make V=1
 V = 0
