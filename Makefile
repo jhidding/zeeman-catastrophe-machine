@@ -7,7 +7,14 @@
 #| Usage
 #| -----
 #|
-#|      make [help|clean|weave] [V=1]
+#|      make [help|clean|weave] [V=0|1]
+#|
+#| Prerequisites
+#| -------------
+#|
+#| * Pandoc >= 2.3 (with Lua filter support)
+#| * pandoc-eqnos, pandoc-fignos (`pip install`)
+#| * inotify-tools (for watching)
 #|
 #| Targets
 #| -------
@@ -15,6 +22,7 @@
 #| * `help`: print this help
 #| * `clean`: clean up build files
 #| * `weave`: build everything
+#| * `watch`: watch source files
 #|
 #| Arguments
 #| ---------
@@ -59,6 +67,12 @@ docs/zeeman.js: $(wildcard src/*.elm) | docs
 clean:
 	$(PRINTF) "cleaning docs\n"
 	$(AT)rm -rf docs
+
+watch: weave
+	while true ; do \
+		inotifywait -e close_write lit/*.md src/*.elm static/*; \
+		make weave; \
+	done
 
 # To be verbose, run: make V=1
 V = 0

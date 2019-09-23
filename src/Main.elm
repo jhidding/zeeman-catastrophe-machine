@@ -25,8 +25,8 @@ update : Msg -> Model -> Model
 update msg m = case msg of
     (MouseMove p) ->
         if not m.pointerLock then
-            let x = p.x / 1000.0 - 3.5
-                y = p.y / 1000.0 - 1.5
+            let x = p.x / 100.0 - 3.5
+                y = p.y / 100.0 - 1.5
                 oldMachine = m.machine
             in { m | machine = minimizeMachine { oldMachine | p = Position x y } }
         else

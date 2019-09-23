@@ -209,7 +209,7 @@ renderMachine m =
         , viewBox "-3500 -1500 8000 3000"
         , onMouseMove (\ x y -> MouseMove (Position x y))
         , onClick MouseClick ]
-        [ g [ pointerEvents "all" ]
+        [ g [ pointerEvents "bounding-box" ]
             [ rect [ x "-3500", y "-1500", width "8000", height "3000"
                    , fill "none" ] [] ]
         , g [ pointerEvents "none", transform "scale(1000)" ]

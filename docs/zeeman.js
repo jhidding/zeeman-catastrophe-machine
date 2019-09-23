@@ -4755,8 +4755,8 @@ var author$project$Main$update = F2(
 		if (!msg.$) {
 			var p = msg.a;
 			if (!m.P) {
-				var y = (p.a / 1000.0) - 1.5;
-				var x = (p.b / 1000.0) - 3.5;
+				var y = (p.a / 100.0) - 1.5;
+				var x = (p.b / 100.0) - 3.5;
 				var oldMachine = m.O;
 				return _Utils_update(
 					m,
@@ -5403,7 +5403,7 @@ var author$project$Machine$renderMachine = function (m) {
 				elm$svg$Svg$g,
 				_List_fromArray(
 					[
-						elm$svg$Svg$Attributes$pointerEvents('all')
+						elm$svg$Svg$Attributes$pointerEvents('bounding-box')
 					]),
 				_List_fromArray(
 					[

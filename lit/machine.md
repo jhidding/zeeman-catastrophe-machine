@@ -1,32 +1,18 @@
 ---
-title: The catastrophe machine
+title: Zeeman's catastrophe machine
 ---
 
-``` {.elm file=src/Machine.elm}
-module Machine exposing
-    ( Machine
-    , renderMachine
-    , fromPosition
-    , minimizeMachine
-    , dPotential
-    , d2Potential )
+::: {#machine}
+:::
 
-<<import-svg>>
-import String exposing (fromFloat, fromInt)
+<script src="zeeman.js"></script>
+<script>
+  Elm.Main.init({ node: document.getElementById("machine") });
+</script>
 
-import Msg exposing (Msg(..), Position)
+# Problem
 
-<<machine-datatype>>
-<<brentish>>
-<<machine-render>>
-```
-
-# The math
-
-## Problem
-
-We have disk of radius $R$ at the origin, a pin on the edge of this disk at angle $\theta$,
-an elastic $a$ from the pin to a fixed point on the $x$-axis, and another elastic $b$ from the pin to a free moving pointer, see +@fig:system.
+We have disk of radius $R$ at the origin, a pin on the edge of this disk at angle $\theta$, an elastic $a$ from the pin to a fixed point on the $x$-axis, and another elastic $b$ from the pin to a free moving pointer, see +@fig:system.
 
 ![Zeeman's catastrophe machine](system.svg){#fig:system}
 
@@ -109,11 +95,9 @@ d2Potential { f, p, theta } =
     in d_a^2 + (l_a - 1) * dd_a + d_b^2 + (l_b - 1) * dd_b
 ```
 
-## Catastrophe analysis
+# Catastrophe analysis
 
-We may find the location of the fold catastrophes by looking at the expansion of the potential in the second order.
-
-## Numerical methods
+# Numerical methods
 
 There are two methods that we will use to find the minimum of the potential: Newton and bisection. Newton's method converges faster if we're close to a minimum, but if the we're far away, particularly somewhere where the slope of the potential is shallow, Newton behaves bad. This solution maintains an interval that straps the minimum inside. If the Newton method wants to exit this interval, we revert to bisection.
 
@@ -153,7 +137,7 @@ phase : MinState -> Float -> Phase
 phase s x = Phase x (s.f x) (s.df x)
 ```
 
-### Updating the state
+## Updating the state
 
 The state is updated such that the points $a$ and $b$ always stradle the minimum and $b$ is the last computed point.
 
@@ -166,7 +150,7 @@ intersect s p =
         {s | a = s.b, b = p }
 ```
 
-### Bisection method
+## Bisection method
 
 ``` {.elm #brentish}
 bisection : MinState -> MinState
@@ -175,7 +159,7 @@ bisection ({ f, df, a, b } as s) =
     in intersect { s | last = Bisect } <| phase s x
 ```
 
-### Newton method
+## Newton method
 
 The Newton method is accepted only if the result is inside the interval. Otherwise we revert to bisection. This implementation is different from ordinary root-finding Newton method, in that it only searches in a down-hill direction.
 
@@ -195,7 +179,7 @@ newton ({ b } as s) =
         bisection s
 ```
 
-### Looping
+## Looping
 
 The `findRoot` function is a generic function that keeps iterating on `newton` until a sattisfying result is found. This function is generic and should work for any input function.
 
@@ -210,7 +194,7 @@ findRoot ({ b } as s) =
 
 There is some more specialisation in how we initialise the search, finding an interval that should give us a good result.
 
-### Initialising the search
+## Initialising the search
 
 The first task is to find a pair of numbers $x_a$ and $x_b$ for which there is a root in $f$ for a value between $x_a$ and $x_b$. Second criterium is that the derivatives of $f$ don't change sign in the interval. If we're close to an inflection point, which will happen a lot in this application, no such interval may exist. In that case we don't change anything. Since we operate on a periodic space we'll give a finite list of candidate intervals.
 
@@ -240,7 +224,7 @@ initMin f df x =
     in bracket s <| List.map (\ theta -> x - sign * theta) allAngles
 ```
 
-### Updating the machine
+## Updating the machine
 
 In updating the machine state, the last step is to retrieve a value between $0$ and $2\pi$. This step is not essential, but it keeps me sane.
 
@@ -259,6 +243,8 @@ minimizeMachine m =
 ```
 
 # Appendix
+
+## Plotting the machine in Julia
 
 ``` {.julia #plot-system}
 using Gadfly
@@ -309,7 +295,7 @@ img = SVG("system.svg", 14cm, 7cm)
 draw(img, plt)
 ```
 
-## Rendering
+## Rendering SVG
 
 ``` {.elm #import-svg}
 import Svg exposing (..)
@@ -377,7 +363,7 @@ renderMachine m =
         , viewBox "-3500 -1500 8000 3000"
         , onMouseMove (\ x y -> MouseMove (Position x y))
         , onClick MouseClick ]
-        [ g [ pointerEvents "all" ]
+        [ g [ pointerEvents "bounding-box" ]
             [ rect [ x "-3500", y "-1500", width "8000", height "3000"
                    , fill "none" ] [] ]
         , g [ pointerEvents "none", transform "scale(1000)" ]
@@ -401,3 +387,25 @@ renderMachine m =
             ]
         ]
 ```
+
+## Scaffold
+
+``` {.elm file=src/Machine.elm}
+module Machine exposing
+    ( Machine
+    , renderMachine
+    , fromPosition
+    , minimizeMachine
+    , dPotential
+    , d2Potential )
+
+<<import-svg>>
+import String exposing (fromFloat, fromInt)
+
+import Msg exposing (Msg(..), Position)
+
+<<machine-datatype>>
+<<brentish>>
+<<machine-render>>
+```
+

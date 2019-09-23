@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>The catastrophe machine</title>
+  <title>Zeeman’s catastrophe machine</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -91,38 +91,35 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </head>
 <body>
 <header>
-<h1 class="title">The catastrophe machine</h1>
+<h1 class="title">Zeeman’s catastrophe machine</h1>
 </header>
 <nav id="TOC">
 <ul>
-<li><a href="#the-math">The math</a><ul>
 <li><a href="#problem">Problem</a></li>
-<li><a href="#numerical-methods">Numerical methods</a></li>
+<li><a href="#catastrophe-analysis">Catastrophe analysis</a></li>
+<li><a href="#numerical-methods">Numerical methods</a><ul>
+<li><a href="#updating-the-state">Updating the state</a></li>
+<li><a href="#bisection-method">Bisection method</a></li>
+<li><a href="#newton-method">Newton method</a></li>
+<li><a href="#looping">Looping</a></li>
+<li><a href="#initialising-the-search">Initialising the search</a></li>
+<li><a href="#updating-the-machine">Updating the machine</a></li>
 </ul></li>
 <li><a href="#appendix">Appendix</a><ul>
-<li><a href="#rendering">Rendering</a></li>
+<li><a href="#plotting-the-machine-in-julia">Plotting the machine in Julia</a></li>
+<li><a href="#rendering-svg">Rendering SVG</a></li>
+<li><a href="#scaffold">Scaffold</a></li>
 </ul></li>
 </ul>
 </nav>
-<p><em>file: «src/Machine.elm»=</em></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">module</span> <span class="dt">Machine</span> <span class="kw">exposing</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">    ( <span class="dt">Machine</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="op">,</span> <span class="fu">renderMachine</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="op">,</span> <span class="fu">fromPosition</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">    <span class="op">,</span> <span class="fu">minimizeMachine</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">    <span class="op">,</span> <span class="fu">dPotential</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="op">,</span> <span class="fu">d2Potential</span> )</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="op">&lt;&lt;</span><span class="kw">import</span><span class="op">-</span><span class="fu">svg</span><span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="kw">import</span> <span class="dt">String</span> <span class="kw">exposing</span> (<span class="fu">fromFloat</span><span class="op">,</span> <span class="fu">fromInt</span>)</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="kw">import</span> <span class="dt">Msg</span> <span class="kw">exposing</span> (<span class="dt">Msg</span>(<span class="op">..</span>)<span class="op">,</span> <span class="dt">Position</span>)</a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="op">&lt;&lt;</span><span class="fu">machine</span><span class="op">-</span><span class="fu">datatype</span><span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="op">&lt;&lt;</span><span class="fu">brentish</span><span class="op">&gt;&gt;</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="op">&lt;&lt;</span><span class="fu">machine</span><span class="op">-</span><span class="fu">render</span><span class="op">&gt;&gt;</span></a></code></pre></div>
-<h2 id="the-math">The math</h2>
-<h3 id="problem">Problem</h3>
+<div id="machine">
+
+</div>
+<script src="zeeman.js"></script>
+<script>
+  Elm.Main.init({ node: document.getElementById("machine") });
+</script>
+<h2 id="problem">Problem</h2>
 <p>We have disk of radius <span class="math inline">\(R\)</span> at the origin, a pin on the edge of this disk at angle <span class="math inline">\(\theta\)</span>, an elastic <span class="math inline">\(a\)</span> from the pin to a fixed point on the <span class="math inline">\(x\)</span>-axis, and another elastic <span class="math inline">\(b\)</span> from the pin to a free moving pointer, see fig. <a href="#fig:system">1</a>.</p>
 <div id="fig:system" class="fignos">
 <figure>
@@ -181,7 +178,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="derivatives-7" data-line-number="7">        <span class="fu">dd_a</span>  <span class="op">=</span> (<span class="fu">f</span><span class="op">.</span><span class="fu">x</span> <span class="op">*</span> <span class="fu">cos</span> <span class="fu">theta</span> <span class="op">+</span> <span class="fu">f</span><span class="op">.</span><span class="fu">y</span> <span class="op">*</span> <span class="fu">cos</span> <span class="fu">theta</span> <span class="op">-</span> <span class="fu">d_a</span><span class="op">^</span><span class="dv">2</span>) <span class="op">/</span> <span class="fu">l_a</span></a>
 <a class="sourceLine" id="derivatives-8" data-line-number="8">        <span class="fu">dd_b</span>  <span class="op">=</span> (<span class="fu">p</span><span class="op">.</span><span class="fu">x</span> <span class="op">*</span> <span class="fu">cos</span> <span class="fu">theta</span> <span class="op">+</span> <span class="fu">p</span><span class="op">.</span><span class="fu">y</span> <span class="op">*</span> <span class="fu">cos</span> <span class="fu">theta</span> <span class="op">-</span> <span class="fu">d_b</span><span class="op">^</span><span class="dv">2</span>) <span class="op">/</span> <span class="fu">l_b</span></a>
 <a class="sourceLine" id="derivatives-9" data-line-number="9">    <span class="kw">in</span> <span class="fu">d_a</span><span class="op">^</span><span class="dv">2</span> <span class="op">+</span> (<span class="fu">l_a</span> <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="fu">dd_a</span> <span class="op">+</span> <span class="fu">d_b</span><span class="op">^</span><span class="dv">2</span> <span class="op">+</span> (<span class="fu">l_b</span> <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="fu">dd_b</span></a></code></pre></div>
-<h3 id="numerical-methods">Numerical methods</h3>
+<h2 id="catastrophe-analysis">Catastrophe analysis</h2>
+<h2 id="numerical-methods">Numerical methods</h2>
 <p>There are two methods that we will use to find the minimum of the potential: Newton and bisection. Newton’s method converges faster if we’re close to a minimum, but if the we’re far away, particularly somewhere where the slope of the potential is shallow, Newton behaves bad. This solution maintains an interval that straps the minimum inside. If the Newton method wants to exit this interval, we revert to bisection.</p>
 <p>This method is similar to the Brent method which is a hybrid between bisection and secant method.</p>
 <p>For visualisation purposes an <span class="math inline">\(\epsilon\)</span> of <span class="math inline">\(0.001\)</span> should suffice.</p>
@@ -206,7 +204,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">phase</span> : <span class="dt">MinState</span> <span class="op">-&gt;</span> <span class="dt">Float</span> <span class="op">-&gt;</span> <span class="dt">Phase</span></a>
 <a class="sourceLine" id="brentish-2" data-line-number="2"><span class="fu">phase</span> <span class="fu">s</span> <span class="fu">x</span> <span class="op">=</span> <span class="dt">Phase</span> <span class="fu">x</span> (<span class="fu">s</span><span class="op">.</span><span class="fu">f</span> <span class="fu">x</span>) (<span class="fu">s</span><span class="op">.</span><span class="fu">df</span> <span class="fu">x</span>)</a></code></pre></div>
-<h4 id="updating-the-state">Updating the state</h4>
+<h3 id="updating-the-state">Updating the state</h3>
 <p>The state is updated such that the points <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> always stradle the minimum and <span class="math inline">\(b\)</span> is the last computed point.</p>
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">intersect</span> : <span class="dt">MinState</span> <span class="op">-&gt;</span> <span class="dt">Phase</span> <span class="op">-&gt;</span> <span class="dt">MinState</span></a>
@@ -215,13 +213,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="brentish-4" data-line-number="4">        {<span class="fu">s</span> <span class="op">|</span> <span class="fu">b</span> <span class="op">=</span> <span class="fu">p</span> }</a>
 <a class="sourceLine" id="brentish-5" data-line-number="5">    <span class="cf">else</span></a>
 <a class="sourceLine" id="brentish-6" data-line-number="6">        {<span class="fu">s</span> <span class="op">|</span> <span class="fu">a</span> <span class="op">=</span> <span class="fu">s</span><span class="op">.</span><span class="fu">b</span><span class="op">,</span> <span class="fu">b</span> <span class="op">=</span> <span class="fu">p</span> }</a></code></pre></div>
-<h4 id="bisection-method">Bisection method</h4>
+<h3 id="bisection-method">Bisection method</h3>
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">bisection</span> : <span class="dt">MinState</span> <span class="op">-&gt;</span> <span class="dt">MinState</span></a>
 <a class="sourceLine" id="brentish-2" data-line-number="2"><span class="fu">bisection</span> ({ <span class="fu">f</span><span class="op">,</span> <span class="fu">df</span><span class="op">,</span> <span class="fu">a</span><span class="op">,</span> <span class="fu">b</span> } <span class="kw">as</span> <span class="fu">s</span>) <span class="op">=</span></a>
 <a class="sourceLine" id="brentish-3" data-line-number="3">    <span class="kw">let</span> <span class="fu">x</span> <span class="op">=</span> <span class="fu">a</span><span class="op">.</span><span class="fu">x</span> <span class="op">-</span> <span class="fu">a</span><span class="op">.</span><span class="fu">y</span> <span class="op">*</span> (<span class="fu">b</span><span class="op">.</span><span class="fu">x</span> <span class="op">-</span> <span class="fu">a</span><span class="op">.</span><span class="fu">x</span>) <span class="op">/</span> (<span class="fu">b</span><span class="op">.</span><span class="fu">y</span> <span class="op">-</span> <span class="fu">a</span><span class="op">.</span><span class="fu">y</span>)</a>
 <a class="sourceLine" id="brentish-4" data-line-number="4">    <span class="kw">in</span> <span class="fu">intersect</span> { <span class="fu">s</span> <span class="op">|</span> <span class="fu">last</span> <span class="op">=</span> <span class="dt">Bisect</span> } <span class="op">&lt;|</span> <span class="fu">phase</span> <span class="fu">s</span> <span class="fu">x</span></a></code></pre></div>
-<h4 id="newton-method">Newton method</h4>
+<h3 id="newton-method">Newton method</h3>
 <p>The Newton method is accepted only if the result is inside the interval. Otherwise we revert to bisection. This implementation is different from ordinary root-finding Newton method, in that it only searches in a down-hill direction.</p>
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">inside</span> : <span class="dt">MinState</span> <span class="op">-&gt;</span> <span class="dt">Float</span> <span class="op">-&gt;</span> <span class="dt">Bool</span></a>
@@ -237,7 +235,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="brentish-11" data-line-number="11">        <span class="fu">intersect</span> { <span class="fu">s</span> <span class="op">|</span> <span class="fu">last</span> <span class="op">=</span> <span class="dt">Newton</span> } <span class="op">&lt;|</span> <span class="fu">phase</span> <span class="fu">s</span> <span class="fu">x</span></a>
 <a class="sourceLine" id="brentish-12" data-line-number="12">    <span class="cf">else</span></a>
 <a class="sourceLine" id="brentish-13" data-line-number="13">        <span class="fu">bisection</span> <span class="fu">s</span></a></code></pre></div>
-<h4 id="looping">Looping</h4>
+<h3 id="looping">Looping</h3>
 <p>The <code>findRoot</code> function is a generic function that keeps iterating on <code>newton</code> until a sattisfying result is found. This function is generic and should work for any input function.</p>
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">findRoot</span> : <span class="dt">MinState</span> <span class="op">-&gt;</span> <span class="dt">Float</span></a>
@@ -247,7 +245,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="brentish-5" data-line-number="5">    <span class="cf">else</span></a>
 <a class="sourceLine" id="brentish-6" data-line-number="6">        <span class="fu">findRoot</span> (<span class="fu">newton</span> <span class="fu">s</span>)</a></code></pre></div>
 <p>There is some more specialisation in how we initialise the search, finding an interval that should give us a good result.</p>
-<h4 id="initialising-the-search">Initialising the search</h4>
+<h3 id="initialising-the-search">Initialising the search</h3>
 <p>The first task is to find a pair of numbers <span class="math inline">\(x_a\)</span> and <span class="math inline">\(x_b\)</span> for which there is a root in <span class="math inline">\(f\)</span> for a value between <span class="math inline">\(x_a\)</span> and <span class="math inline">\(x_b\)</span>. Second criterium is that the derivatives of <span class="math inline">\(f\)</span> don’t change sign in the interval. If we’re close to an inflection point, which will happen a lot in this application, no such interval may exist. In that case we don’t change anything. Since we operate on a periodic space we’ll give a finite list of candidate intervals.</p>
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">bracket</span> : <span class="dt">MinState</span> <span class="op">-&gt;</span> <span class="dt">List</span> <span class="dt">Float</span> <span class="op">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">MinState</span></a>
@@ -268,7 +266,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="brentish-4" data-line-number="4">        <span class="fu">s</span> <span class="op">=</span> <span class="dt">MinState</span> <span class="fu">f</span> <span class="fu">df</span> <span class="fu">a</span> <span class="fu">a</span> <span class="dt">Guess</span></a>
 <a class="sourceLine" id="brentish-5" data-line-number="5">        <span class="fu">sign</span> <span class="op">=</span> <span class="fu">signOf</span> <span class="fu">a</span><span class="op">.</span><span class="fu">y</span></a>
 <a class="sourceLine" id="brentish-6" data-line-number="6">    <span class="kw">in</span> <span class="fu">bracket</span> <span class="fu">s</span> <span class="op">&lt;|</span> <span class="dt">List</span><span class="op">.</span><span class="fu">map</span> (\ <span class="fu">theta</span> <span class="op">-&gt;</span> <span class="fu">x</span> <span class="op">-</span> <span class="fu">sign</span> <span class="op">*</span> <span class="fu">theta</span>) <span class="fu">allAngles</span></a></code></pre></div>
-<h4 id="updating-the-machine">Updating the machine</h4>
+<h3 id="updating-the-machine">Updating the machine</h3>
 <p>In updating the machine state, the last step is to retrieve a value between <span class="math inline">\(0\)</span> and <span class="math inline">\(2\pi\)</span>. This step is not essential, but it keeps me sane.</p>
 <p><em>«brentish»=+</em></p>
 <div class="sourceCode" id="brentish"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="brentish-1" data-line-number="1"><span class="fu">modulo</span> : <span class="dt">Float</span> <span class="op">-&gt;</span> <span class="dt">Float</span> <span class="op">-&gt;</span> <span class="dt">Float</span></a>
@@ -283,6 +281,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="brentish-10" data-line-number="10">        <span class="dt">Just</span> <span class="fu">s</span>  <span class="op">-&gt;</span> { <span class="fu">m</span> <span class="op">|</span> <span class="fu">theta</span> <span class="op">=</span> <span class="fu">modulo</span> (<span class="fu">findRoot</span> <span class="fu">s</span>) (<span class="dv">2</span> <span class="op">*</span> <span class="fu">pi</span>) }</a>
 <a class="sourceLine" id="brentish-11" data-line-number="11">        <span class="dt">Nothing</span> <span class="op">-&gt;</span> <span class="fu">m</span></a></code></pre></div>
 <h2 id="appendix">Appendix</h2>
+<h3 id="plotting-the-machine-in-julia">Plotting the machine in Julia</h3>
 <p><em>«plot-system»=</em></p>
 <div class="sourceCode" id="plot-system"><pre class="sourceCode julia"><code class="sourceCode julia"><a class="sourceLine" id="plot-system-1" data-line-number="1">using Gadfly</a>
 <a class="sourceLine" id="plot-system-2" data-line-number="2">using DataFrames</a>
@@ -330,7 +329,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="plot-system-44" data-line-number="44"></a>
 <a class="sourceLine" id="plot-system-45" data-line-number="45">img = SVG(<span class="st">&quot;system.svg&quot;</span>, <span class="fl">14</span>cm, <span class="fl">7</span>cm)</a>
 <a class="sourceLine" id="plot-system-46" data-line-number="46">draw(img, plt)</a></code></pre></div>
-<h3 id="rendering">Rendering</h3>
+<h3 id="rendering-svg">Rendering SVG</h3>
 <p><em>«import-svg»=</em></p>
 <div class="sourceCode" id="import-svg"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="import-svg-1" data-line-number="1"><span class="kw">import</span> <span class="dt">Svg</span> <span class="kw">exposing</span> (<span class="op">..</span>)</a>
 <a class="sourceLine" id="import-svg-2" data-line-number="2"><span class="kw">import</span> <span class="dt">Svg</span><span class="op">.</span><span class="dt">Attributes</span> <span class="kw">exposing</span> (<span class="op">..</span>)</a>
@@ -395,7 +394,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="machine-render-54" data-line-number="54">        <span class="op">,</span> <span class="fu">viewBox</span> <span class="st">&quot;-3500 -1500 8000 3000&quot;</span></a>
 <a class="sourceLine" id="machine-render-55" data-line-number="55">        <span class="op">,</span> <span class="fu">onMouseMove</span> (\ <span class="fu">x</span> <span class="fu">y</span> <span class="op">-&gt;</span> <span class="dt">MouseMove</span> (<span class="dt">Position</span> <span class="fu">x</span> <span class="fu">y</span>))</a>
 <a class="sourceLine" id="machine-render-56" data-line-number="56">        <span class="op">,</span> <span class="fu">onClick</span> <span class="dt">MouseClick</span> ]</a>
-<a class="sourceLine" id="machine-render-57" data-line-number="57">        [ <span class="fu">g</span> [ <span class="fu">pointerEvents</span> <span class="st">&quot;all&quot;</span> ]</a>
+<a class="sourceLine" id="machine-render-57" data-line-number="57">        [ <span class="fu">g</span> [ <span class="fu">pointerEvents</span> <span class="st">&quot;bounding-box&quot;</span> ]</a>
 <a class="sourceLine" id="machine-render-58" data-line-number="58">            [ <span class="fu">rect</span> [ <span class="fu">x</span> <span class="st">&quot;-3500&quot;</span><span class="op">,</span> <span class="fu">y</span> <span class="st">&quot;-1500&quot;</span><span class="op">,</span> <span class="fu">width</span> <span class="st">&quot;8000&quot;</span><span class="op">,</span> <span class="fu">height</span> <span class="st">&quot;3000&quot;</span></a>
 <a class="sourceLine" id="machine-render-59" data-line-number="59">                   <span class="op">,</span> <span class="fu">fill</span> <span class="st">&quot;none&quot;</span> ] [] ]</a>
 <a class="sourceLine" id="machine-render-60" data-line-number="60">        <span class="op">,</span> <span class="fu">g</span> [ <span class="fu">pointerEvents</span> <span class="st">&quot;none&quot;</span><span class="op">,</span> <span class="fu">transform</span> <span class="st">&quot;scale(1000)&quot;</span> ]</a>
@@ -418,5 +417,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="machine-render-77" data-line-number="77">                     <span class="op">,</span> <span class="fu">cy</span> (<span class="fu">fromFloat</span> <span class="op">&lt;|</span> <span class="fu">m</span><span class="op">.</span><span class="fu">f</span><span class="op">.</span><span class="fu">y</span>)<span class="op">,</span> <span class="fu">r</span> <span class="st">&quot;0.07&quot;</span><span class="op">,</span> <span class="fu">fill</span> <span class="st">&quot;#ffaa88&quot;</span> ] []</a>
 <a class="sourceLine" id="machine-render-78" data-line-number="78">            ]</a>
 <a class="sourceLine" id="machine-render-79" data-line-number="79">        ]</a></code></pre></div>
+<h3 id="scaffold">Scaffold</h3>
+<p><em>file: «src/Machine.elm»=</em></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode elm"><code class="sourceCode elm"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">module</span> <span class="dt">Machine</span> <span class="kw">exposing</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">    ( <span class="dt">Machine</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="op">,</span> <span class="fu">renderMachine</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="op">,</span> <span class="fu">fromPosition</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">    <span class="op">,</span> <span class="fu">minimizeMachine</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">    <span class="op">,</span> <span class="fu">dPotential</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="op">,</span> <span class="fu">d2Potential</span> )</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="op">&lt;&lt;</span><span class="kw">import</span><span class="op">-</span><span class="fu">svg</span><span class="op">&gt;&gt;</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="kw">import</span> <span class="dt">String</span> <span class="kw">exposing</span> (<span class="fu">fromFloat</span><span class="op">,</span> <span class="fu">fromInt</span>)</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="kw">import</span> <span class="dt">Msg</span> <span class="kw">exposing</span> (<span class="dt">Msg</span>(<span class="op">..</span>)<span class="op">,</span> <span class="dt">Position</span>)</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="op">&lt;&lt;</span><span class="fu">machine</span><span class="op">-</span><span class="fu">datatype</span><span class="op">&gt;&gt;</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="op">&lt;&lt;</span><span class="fu">brentish</span><span class="op">&gt;&gt;</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="op">&lt;&lt;</span><span class="fu">machine</span><span class="op">-</span><span class="fu">render</span><span class="op">&gt;&gt;</span></a></code></pre></div>
 </body>
 </html>
