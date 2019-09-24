@@ -1,6 +1,8 @@
 ---
 title: Zeeman's catastrophe machine
 author: Johan Hidding
+bibliography: lit/ref.bib
+reference-section-title: References
 ---
 
 # Introduction
