@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.U.G === region.Z.G)
+	if (region.V.G === region._.G)
 	{
-		return 'on line ' + region.U.G;
+		return 'on line ' + region.V.G;
 	}
-	return 'on lines ' + region.U.G + ' through ' + region.Z.G;
+	return 'on lines ' + region.V.G + ' through ' + region._.G;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function() { return function() {} }
 	);
 });
@@ -2660,8 +2660,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		p: func(record.p),
-		V: record.V,
-		T: record.T
+		W: record.W,
+		U: record.U
 	}
 });
 
@@ -2930,10 +2930,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.p;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.V;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.W;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.T) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.U) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3883,11 +3883,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function(sendToApp, initialModel) {
-			var view = impl.aL;
+			var view = impl.aN;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3919,12 +3919,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.H && impl.H(sendToApp)
-			var view = impl.aL;
+			var view = impl.aN;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3932,12 +3932,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.au);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aw);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aI) && (_VirtualDom_doc.title = title = doc.aI);
+				(title !== doc.aK) && (_VirtualDom_doc.title = title = doc.aK);
 			});
 		}
 	);
@@ -3993,8 +3993,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aD;
-	var onUrlRequest = impl.aE;
+	var onUrlChange = impl.aF;
+	var onUrlRequest = impl.aG;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4014,9 +4014,9 @@ function _Browser_application(impl)
 					var next = elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ak === next.ak
-							&& curr.ab === next.ab
-							&& curr.ah.a === next.ah.a
+							&& curr.al === next.al
+							&& curr.ac === next.ac
+							&& curr.ai.a === next.ai.a
 						)
 							? elm$browser$Browser$Internal(next)
 							: elm$browser$Browser$External(href)
@@ -4024,13 +4024,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aB: function(flags)
+		aD: function(flags)
 		{
-			return A3(impl.aB, flags, _Browser_getUrl(), key);
+			return A3(impl.aD, flags, _Browser_getUrl(), key);
 		},
+		aN: impl.aN,
 		aL: impl.aL,
-		aJ: impl.aJ,
-		aH: impl.aH
+		aJ: impl.aJ
 	});
 }
 
@@ -4096,17 +4096,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { az: 'hidden', av: 'visibilitychange' }
+		? { aB: 'hidden', ax: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { az: 'mozHidden', av: 'mozvisibilitychange' }
+		? { aB: 'mozHidden', ax: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { az: 'msHidden', av: 'msvisibilitychange' }
+		? { aB: 'msHidden', ax: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { az: 'webkitHidden', av: 'webkitvisibilitychange' }
-		: { az: 'hidden', av: 'visibilitychange' };
+		? { aB: 'webkitHidden', ax: 'webkitvisibilitychange' }
+		: { aB: 'hidden', ax: 'visibilitychange' };
 }
 
 
@@ -4187,8 +4187,8 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		ao: _Browser_getScene(),
-		ar: {
+		ap: _Browser_getScene(),
+		at: {
 			b: _Browser_window.pageXOffset,
 			a: _Browser_window.pageYOffset,
 			E: _Browser_doc.documentElement.clientWidth,
@@ -4226,11 +4226,11 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			ao: {
+			ap: {
 				E: node.scrollWidth,
 				y: node.scrollHeight
 			},
-			ar: {
+			at: {
 				b: node.scrollLeft,
 				a: node.scrollTop,
 				E: node.clientWidth,
@@ -4264,14 +4264,14 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			ao: _Browser_getScene(),
-			ar: {
+			ap: _Browser_getScene(),
+			at: {
 				b: x,
 				a: y,
 				E: _Browser_doc.documentElement.clientWidth,
 				y: _Browser_doc.documentElement.clientHeight
 			},
-			aw: {
+			ay: {
 				b: x + rect.left,
 				a: y + rect.top,
 				E: rect.width,
@@ -4310,26 +4310,6 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$Model = F2(
-	function (machine, pointerLock) {
-		return {O: machine, P: pointerLock};
-	});
-var author$project$Msg$Position = F2(
-	function (x, y) {
-		return {b: x, a: y};
-	});
-var elm$core$Basics$False = 1;
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var author$project$Main$init = A2(
-	author$project$Main$Model,
-	{
-		j: A2(author$project$Msg$Position, -3, 0),
-		z: A2(author$project$Msg$Position, 0, 0),
-		g: 0.0
-	},
-	false);
 var elm$core$Basics$EQ = 1;
 var elm$core$Basics$GT = 2;
 var elm$core$Basics$LT = 0;
@@ -4469,7 +4449,7 @@ var author$project$Machine$intersect = F2(
 	});
 var author$project$Machine$Phase = F3(
 	function (x, y, dy) {
-		return {N: dy, b: x, a: y};
+		return {O: dy, b: x, a: y};
 	});
 var author$project$Machine$phase = F2(
 	function (s, x) {
@@ -4489,8 +4469,11 @@ var author$project$Machine$bisection = function (s) {
 		author$project$Machine$intersect,
 		_Utils_update(
 			s,
-			{Q: 1}),
+			{R: 1}),
 		A2(author$project$Machine$phase, s, x));
+};
+var elm$core$Basics$negate = function (n) {
+	return -n;
 };
 var elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
@@ -4514,12 +4497,12 @@ var author$project$Machine$signOf = function (x) {
 var author$project$Machine$newton = function (s) {
 	var b = s.k;
 	var sign = author$project$Machine$signOf(b.a);
-	var x = b.b - (sign * elm$core$Basics$abs(b.a / b.N));
+	var x = b.b - (sign * elm$core$Basics$abs(b.a / b.O));
 	return A2(author$project$Machine$inside, s, x) ? A2(
 		author$project$Machine$intersect,
 		_Utils_update(
 			s,
-			{Q: 2}),
+			{R: 2}),
 		A2(author$project$Machine$phase, s, x)) : author$project$Machine$bisection(s);
 };
 var author$project$Machine$findRoot = function (s) {
@@ -4540,7 +4523,7 @@ var author$project$Machine$findRoot = function (s) {
 var author$project$Machine$Guess = 0;
 var author$project$Machine$MinState = F5(
 	function (f, df, a, b, last) {
-		return {s: a, k: b, M: df, j: f, Q: last};
+		return {s: a, k: b, M: df, j: f, R: last};
 	});
 var elm$core$Basics$pi = _Basics_pi;
 var elm$core$Basics$toFloat = _Basics_toFloat;
@@ -4680,7 +4663,7 @@ var author$project$Machine$bracket = F2(
 			} else {
 				var x = qs.a;
 				var xs = qs.b;
-				if (((a.a * b.a) < 0) && ((a.N * b.N) > 0)) {
+				if (((a.a * b.a) < 0) && ((a.O * b.O) > 0)) {
 					return elm$core$Maybe$Just(s);
 				} else {
 					var $temp$s = _Utils_update(
@@ -4749,32 +4732,62 @@ var author$project$Machine$minimizeMachine = function (m) {
 		return m;
 	}
 };
+var author$project$Main$Model = F3(
+	function (machine, pointerLock, displayOptions) {
+		return {N: displayOptions, P: machine, Q: pointerLock};
+	});
+var author$project$Msg$Position = F2(
+	function (x, y) {
+		return {b: x, a: y};
+	});
+var elm$core$Basics$False = 1;
+var author$project$Main$init = A3(
+	author$project$Main$Model,
+	author$project$Machine$minimizeMachine(
+		{
+			j: A2(author$project$Msg$Position, -3, 0),
+			z: A2(author$project$Msg$Position, 3, -0.5),
+			g: 0.0
+		}),
+	false,
+	{aq: false});
 var elm$core$Basics$not = _Basics_not;
 var author$project$Main$update = F2(
 	function (msg, m) {
-		if (!msg.$) {
-			var p = msg.a;
-			if (!m.P) {
-				var y = (p.a / 100.0) - 1.5;
-				var x = (p.b / 100.0) - 3.5;
-				var oldMachine = m.O;
+		switch (msg.$) {
+			case 0:
+				var p = msg.a;
+				if (!m.Q) {
+					var y = (p.a / 100.0) - 1.5;
+					var x = (p.b / 100.0) - 3.5;
+					var oldMachine = m.P;
+					return _Utils_update(
+						m,
+						{
+							P: author$project$Machine$minimizeMachine(
+								_Utils_update(
+									oldMachine,
+									{
+										z: A2(author$project$Msg$Position, x, y)
+									}))
+						});
+				} else {
+					return m;
+				}
+			case 1:
+				return _Utils_update(
+					m,
+					{Q: !m.Q});
+			default:
+				var v = msg.a;
+				var opt = m.N;
 				return _Utils_update(
 					m,
 					{
-						O: author$project$Machine$minimizeMachine(
-							_Utils_update(
-								oldMachine,
-								{
-									z: A2(author$project$Msg$Position, x, y)
-								}))
+						N: _Utils_update(
+							opt,
+							{aq: v})
 					});
-			} else {
-				return m;
-			}
-		} else {
-			return _Utils_update(
-				m,
-				{P: !m.P});
 		}
 	});
 var elm$core$String$fromFloat = _String_fromNumber;
@@ -5382,153 +5395,233 @@ var elm$svg$Svg$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
-var author$project$Machine$renderMachine = function (m) {
-	return A2(
-		elm$svg$Svg$svg,
-		_List_fromArray(
-			[
-				elm$svg$Svg$Attributes$width('100%'),
-				elm$svg$Svg$Attributes$viewBox('-3500 -1500 8000 3000'),
-				author$project$MouseMove$onMouseMove(
-				F2(
-					function (x, y) {
-						return author$project$Msg$MouseMove(
-							A2(author$project$Msg$Position, x, y));
-					})),
-				elm$svg$Svg$Events$onClick(author$project$Msg$MouseClick)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$svg$Svg$g,
-				_List_fromArray(
-					[
-						elm$svg$Svg$Attributes$pointerEvents('bounding-box')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$svg$Svg$rect,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$x('-3500'),
-								elm$svg$Svg$Attributes$y('-1500'),
-								elm$svg$Svg$Attributes$width('8000'),
-								elm$svg$Svg$Attributes$height('3000'),
-								elm$svg$Svg$Attributes$fill('none')
-							]),
-						_List_Nil)
-					])),
-				A2(
-				elm$svg$Svg$g,
-				_List_fromArray(
-					[
-						elm$svg$Svg$Attributes$pointerEvents('none'),
-						elm$svg$Svg$Attributes$transform('scale(1000)')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$svg$Svg$rect,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$x('-3.5'),
-								elm$svg$Svg$Attributes$y('-1.5'),
-								elm$svg$Svg$Attributes$width('8'),
-								elm$svg$Svg$Attributes$height('3'),
-								elm$svg$Svg$Attributes$stroke('black'),
-								elm$svg$Svg$Attributes$strokeWidth('0.01'),
-								elm$svg$Svg$Attributes$fill('white')
-							]),
-						_List_Nil),
-						A2(
-						elm$svg$Svg$circle,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$cx('0'),
-								elm$svg$Svg$Attributes$cy('0'),
-								elm$svg$Svg$Attributes$r('1'),
-								elm$svg$Svg$Attributes$fill('#ffcc88'),
-								elm$svg$Svg$Attributes$stroke('black'),
-								elm$svg$Svg$Attributes$strokeWidth('0.01')
-							]),
-						_List_Nil),
-						author$project$Machine$discDecoration(m),
-						A2(
-						elm$svg$Svg$polyline,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$fill('none'),
-								elm$svg$Svg$Attributes$stroke('white'),
-								elm$svg$Svg$Attributes$strokeWidth('0.08'),
-								elm$svg$Svg$Attributes$points(
-								author$project$Machine$elasticPathString(m))
-							]),
-						_List_Nil),
-						A2(
-						elm$svg$Svg$polyline,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$fill('none'),
-								elm$svg$Svg$Attributes$stroke('black'),
-								elm$svg$Svg$Attributes$strokeWidth('0.05'),
-								elm$svg$Svg$Attributes$points(
-								author$project$Machine$elasticPathString(m))
-							]),
-						_List_Nil),
-						A2(
-						elm$svg$Svg$polyline,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$fill('#00000022'),
-								elm$svg$Svg$Attributes$stroke('black'),
-								elm$svg$Svg$Attributes$strokeWidth('0.01'),
-								elm$svg$Svg$Attributes$points(
-								author$project$Machine$potentialPathString(m))
-							]),
-						_List_Nil),
-						author$project$Machine$crossHair(m.z),
-						A2(
-						elm$svg$Svg$circle,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$cx(
-								elm$core$String$fromFloat(
-									author$project$Machine$wheelPosition(m.g).b)),
-								elm$svg$Svg$Attributes$cy(
-								elm$core$String$fromFloat(
-									author$project$Machine$wheelPosition(m.g).a)),
-								elm$svg$Svg$Attributes$r('0.07'),
-								elm$svg$Svg$Attributes$fill('#ffaa88'),
-								elm$svg$Svg$Attributes$strokeWidth('0.01'),
-								elm$svg$Svg$Attributes$stroke('black')
-							]),
-						_List_Nil),
-						A2(
-						elm$svg$Svg$circle,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$cx(
-								elm$core$String$fromFloat(m.j.b)),
-								elm$svg$Svg$Attributes$strokeWidth('0.01'),
-								elm$svg$Svg$Attributes$stroke('black'),
-								elm$svg$Svg$Attributes$cy(
-								elm$core$String$fromFloat(m.j.a)),
-								elm$svg$Svg$Attributes$r('0.07'),
-								elm$svg$Svg$Attributes$fill('#ffaa88')
-							]),
-						_List_Nil)
-					]))
-			]));
+var author$project$Machine$renderMachine = F2(
+	function (opt, m) {
+		return A2(
+			elm$svg$Svg$svg,
+			_List_fromArray(
+				[
+					elm$svg$Svg$Attributes$width('100%'),
+					elm$svg$Svg$Attributes$viewBox('-3500 -1500 8000 3000'),
+					author$project$MouseMove$onMouseMove(
+					F2(
+						function (x, y) {
+							return author$project$Msg$MouseMove(
+								A2(author$project$Msg$Position, x, y));
+						})),
+					elm$svg$Svg$Events$onClick(author$project$Msg$MouseClick)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$svg$Svg$g,
+					_List_fromArray(
+						[
+							elm$svg$Svg$Attributes$pointerEvents('bounding-box')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$svg$Svg$rect,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$x('-3500'),
+									elm$svg$Svg$Attributes$y('-1500'),
+									elm$svg$Svg$Attributes$width('8000'),
+									elm$svg$Svg$Attributes$height('3000'),
+									elm$svg$Svg$Attributes$fill('none')
+								]),
+							_List_Nil)
+						])),
+					A2(
+					elm$svg$Svg$g,
+					_List_fromArray(
+						[
+							elm$svg$Svg$Attributes$pointerEvents('none'),
+							elm$svg$Svg$Attributes$transform('scale(1000)')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$svg$Svg$rect,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$x('-3.5'),
+									elm$svg$Svg$Attributes$y('-1.5'),
+									elm$svg$Svg$Attributes$width('8'),
+									elm$svg$Svg$Attributes$height('3'),
+									elm$svg$Svg$Attributes$stroke('black'),
+									elm$svg$Svg$Attributes$strokeWidth('0.01'),
+									elm$svg$Svg$Attributes$fill('white')
+								]),
+							_List_Nil),
+							A2(
+							elm$svg$Svg$circle,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$cx('0'),
+									elm$svg$Svg$Attributes$cy('0'),
+									elm$svg$Svg$Attributes$r('1'),
+									elm$svg$Svg$Attributes$fill('#ffcc88'),
+									elm$svg$Svg$Attributes$stroke('black'),
+									elm$svg$Svg$Attributes$strokeWidth('0.01')
+								]),
+							_List_Nil),
+							author$project$Machine$discDecoration(m),
+							A2(
+							elm$svg$Svg$polyline,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$fill('none'),
+									elm$svg$Svg$Attributes$stroke('white'),
+									elm$svg$Svg$Attributes$strokeWidth('0.08'),
+									elm$svg$Svg$Attributes$points(
+									author$project$Machine$elasticPathString(m))
+								]),
+							_List_Nil),
+							A2(
+							elm$svg$Svg$polyline,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$fill('none'),
+									elm$svg$Svg$Attributes$stroke('black'),
+									elm$svg$Svg$Attributes$strokeWidth('0.05'),
+									elm$svg$Svg$Attributes$points(
+									author$project$Machine$elasticPathString(m))
+								]),
+							_List_Nil),
+							opt.aq ? A2(
+							elm$svg$Svg$polyline,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$fill('#00000022'),
+									elm$svg$Svg$Attributes$stroke('black'),
+									elm$svg$Svg$Attributes$strokeWidth('0.01'),
+									elm$svg$Svg$Attributes$points(
+									author$project$Machine$potentialPathString(m))
+								]),
+							_List_Nil) : A2(elm$svg$Svg$g, _List_Nil, _List_Nil),
+							author$project$Machine$crossHair(m.z),
+							A2(
+							elm$svg$Svg$circle,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$cx(
+									elm$core$String$fromFloat(
+										author$project$Machine$wheelPosition(m.g).b)),
+									elm$svg$Svg$Attributes$cy(
+									elm$core$String$fromFloat(
+										author$project$Machine$wheelPosition(m.g).a)),
+									elm$svg$Svg$Attributes$r('0.07'),
+									elm$svg$Svg$Attributes$fill('#ffaa88'),
+									elm$svg$Svg$Attributes$strokeWidth('0.01'),
+									elm$svg$Svg$Attributes$stroke('black')
+								]),
+							_List_Nil),
+							A2(
+							elm$svg$Svg$circle,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$cx(
+									elm$core$String$fromFloat(m.j.b)),
+									elm$svg$Svg$Attributes$strokeWidth('0.01'),
+									elm$svg$Svg$Attributes$stroke('black'),
+									elm$svg$Svg$Attributes$cy(
+									elm$core$String$fromFloat(m.j.a)),
+									elm$svg$Svg$Attributes$r('0.07'),
+									elm$svg$Svg$Attributes$fill('#ffaa88')
+								]),
+							_List_Nil)
+						]))
+				]));
+	});
+var author$project$Msg$TogglePotential = function (a) {
+	return {$: 2, a: a};
 };
+var elm$html$Html$caption = _VirtualDom_node('caption');
 var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$input = _VirtualDom_node('input');
+var elm$html$Html$table = _VirtualDom_node('table');
+var elm$html$Html$td = _VirtualDom_node('td');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$html$Html$tr = _VirtualDom_node('tr');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$json$Json$Decode$bool = _Json_decodeBool;
+var elm$html$Html$Events$targetChecked = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'checked']),
+	elm$json$Json$Decode$bool);
+var elm$html$Html$Events$onCheck = function (tagger) {
+	return A2(
+		elm$html$Html$Events$on,
+		'change',
+		A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetChecked));
+};
 var author$project$Main$view = function (m) {
 	return A2(
 		elm$html$Html$div,
-		_List_Nil,
 		_List_fromArray(
 			[
-				author$project$Machine$renderMachine(m.O)
+				A2(elm$html$Html$Attributes$style, 'background', 'white')
+			]),
+		_List_fromArray(
+			[
+				A2(author$project$Machine$renderMachine, m.N, m.P),
+				A2(
+				elm$html$Html$table,
+				_List_fromArray(
+					[
+						A2(elm$html$Html$Attributes$style, 'border', 'solid thin black'),
+						A2(elm$html$Html$Attributes$style, 'padding', '5pt'),
+						A2(elm$html$Html$Attributes$style, 'width', '100%')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$caption,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Options')
+							])),
+						A2(
+						elm$html$Html$tr,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$td,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$input,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$type_('checkbox'),
+												elm$html$Html$Events$onCheck(author$project$Msg$TogglePotential)
+											]),
+										_List_Nil)
+									])),
+								elm$html$Html$text('show slope of potential')
+							]))
+					]))
 			]));
 };
 var elm$core$Platform$Cmd$batch = _Platform_batch;
@@ -5651,7 +5744,7 @@ var elm$core$String$contains = _String_contains;
 var elm$core$String$toInt = _String_toInt;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {aa: fragment, ab: host, af: path, ah: port_, ak: protocol, al: query};
+		return {ab: fragment, ac: host, ag: path, ai: port_, al: protocol, am: query};
 	});
 var elm$url$Url$chompBeforePath = F5(
 	function (protocol, path, params, frag, str) {
@@ -5758,22 +5851,22 @@ var elm$url$Url$fromString = function (str) {
 var elm$browser$Browser$sandbox = function (impl) {
 	return _Browser_element(
 		{
-			aB: function (_n0) {
-				return _Utils_Tuple2(impl.aB, elm$core$Platform$Cmd$none);
+			aD: function (_n0) {
+				return _Utils_Tuple2(impl.aD, elm$core$Platform$Cmd$none);
 			},
-			aH: function (_n1) {
+			aJ: function (_n1) {
 				return elm$core$Platform$Sub$none;
 			},
-			aJ: F2(
+			aL: F2(
 				function (msg, model) {
 					return _Utils_Tuple2(
-						A2(impl.aJ, msg, model),
+						A2(impl.aL, msg, model),
 						elm$core$Platform$Cmd$none);
 				}),
-			aL: impl.aL
+			aN: impl.aN
 		});
 };
 var author$project$Main$main = elm$browser$Browser$sandbox(
-	{aB: author$project$Main$init, aJ: author$project$Main$update, aL: author$project$Main$view});
+	{aD: author$project$Main$init, aL: author$project$Main$update, aN: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
 	elm$json$Json$Decode$succeed(0))(0)}});}(this));

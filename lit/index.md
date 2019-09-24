@@ -1,5 +1,6 @@
 ---
 title: Zeeman's catastrophe machine
+author: Johan Hidding
 ---
 
 # Introduction
@@ -8,7 +9,9 @@ This is a demo of Christopher Zeeman's catastrophe machine. Zeeman was a British
 
 Catastrophe theory describes how in dynamical systems, small changes in parameters can lead to large and sudden changes in the resulting behaviour. In particular, a system that is completely described by a smooth potential (continuous differentiable) can exert jumpy behaviour. This type of behaviour is found in many physical applications like the stability of ships, but also in optics.
 
-The theory became quite popular in fields such as sociology and ecology. These areas of science are not normally associated with the mathematical rigour that we have come to associate with physics. It is mainly due to the complexity of the systems found in nature that these topics have defied exact mathematical descriptions, an idea that was also noted by Rene Thom in is foundational work "Structural Stability and Morphogenesis".
+The theory became quite popular in fields such as sociology and ecology. These areas of science are not normally associated with the mathematical rigour that we find in physics. It is mainly due to the complexity of the systems found in nature that these topics have defied exact mathematical descriptions, an idea that was also noted by Rene Thom in is foundational work "Structural Stability and Morphogenesis".
+
+Zeeman's catastrophe machine illustrates catastrophic behaviour in a way that everyone should be able to understand. Here it is:
 
 <div id="machine"></div>
 <script src="zeeman.js"></script>
@@ -347,6 +350,9 @@ import MouseMove exposing (onMouseMove)
 ```
 
 ``` {.elm #machine-render}
+type alias DisplayOptions =
+    { showPotential : Bool }
+
 fromPosition : Position -> String
 fromPosition { x, y } = (fromFloat x) ++ "," ++ (fromFloat y)
 
@@ -397,8 +403,8 @@ crossHair { x, y } =
                 , stroke "white", strokeWidth "0.01" ] []
          ]
 
-renderMachine : Machine -> Html Msg
-renderMachine m =
+renderMachine : DisplayOptions -> Machine -> Html Msg
+renderMachine opt m =
     svg [ width "100%"
         , viewBox "-3500 -1500 8000 3000"
         , onMouseMove (\ x y -> MouseMove (Position x y))
@@ -416,8 +422,10 @@ renderMachine m =
                        , points <| elasticPathString m ] []
             , polyline [ fill "none", stroke "black", strokeWidth "0.05"
                        , points <| elasticPathString m ] []
-            , polyline [ fill "#00000022", stroke "black", strokeWidth "0.01"
-                       , points <| potentialPathString m ] []
+            , if opt.showPotential then
+                polyline [ fill "#00000022", stroke "black", strokeWidth "0.01"
+                         , points <| potentialPathString m ] []
+              else g [] []
             , crossHair m.p
             , circle [ cx (fromFloat <| (wheelPosition m.theta).x)
                      , cy (fromFloat <| (wheelPosition m.theta).y)
@@ -433,6 +441,7 @@ renderMachine m =
 ``` {.elm file=src/Machine.elm}
 module Machine exposing
     ( Machine
+    , DisplayOptions
     , renderMachine
     , fromPosition
     , minimizeMachine

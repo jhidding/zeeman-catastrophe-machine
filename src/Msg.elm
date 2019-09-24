@@ -4,4 +4,5 @@ type alias Position = { x: Float, y: Float }
 
 type Msg = MouseMove Position
          | MouseClick
+         | TogglePotential Bool
 

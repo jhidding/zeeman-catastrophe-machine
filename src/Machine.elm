@@ -1,6 +1,7 @@
 -- ------ language="Elm" file="src/Machine.elm"
 module Machine exposing
     ( Machine
+    , DisplayOptions
     , renderMachine
     , fromPosition
     , minimizeMachine
@@ -153,6 +154,9 @@ minimizeMachine m =
         Nothing -> m
 -- ------ end
 -- ------ begin <<machine-render>>[0]
+type alias DisplayOptions =
+    { showPotential : Bool }
+
 fromPosition : Position -> String
 fromPosition { x, y } = (fromFloat x) ++ "," ++ (fromFloat y)
 
@@ -203,8 +207,8 @@ crossHair { x, y } =
                 , stroke "white", strokeWidth "0.01" ] []
          ]
 
-renderMachine : Machine -> Html Msg
-renderMachine m =
+renderMachine : DisplayOptions -> Machine -> Html Msg
+renderMachine opt m =
     svg [ width "100%"
         , viewBox "-3500 -1500 8000 3000"
         , onMouseMove (\ x y -> MouseMove (Position x y))
@@ -222,8 +226,10 @@ renderMachine m =
                        , points <| elasticPathString m ] []
             , polyline [ fill "none", stroke "black", strokeWidth "0.05"
                        , points <| elasticPathString m ] []
-            , polyline [ fill "#00000022", stroke "black", strokeWidth "0.01"
-                       , points <| potentialPathString m ] []
+            , if opt.showPotential then
+                polyline [ fill "#00000022", stroke "black", strokeWidth "0.01"
+                         , points <| potentialPathString m ] []
+              else g [] []
             , crossHair m.p
             , circle [ cx (fromFloat <| (wheelPosition m.theta).x)
                      , cy (fromFloat <| (wheelPosition m.theta).y)

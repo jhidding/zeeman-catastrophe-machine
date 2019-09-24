@@ -1,6 +1,7 @@
 import Browser
 import Html exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onCheck)
+import Html.Attributes exposing (type_, style)
 import String exposing (fromFloat)
 
 import Machine exposing (..)
@@ -15,11 +16,16 @@ type Options
 type alias Model =
     { machine : Machine
     , pointerLock : Bool
+    , displayOptions : DisplayOptions
     }
 
 init : Model
-init = Model { f = Position -3 0, p = Position 0 0, theta = 0.0 }
+init = Model (minimizeMachine
+                { f = Position -3 0
+                , p = Position 3 -0.5
+                , theta = 0.0 })
              False
+             { showPotential = False }
 
 update : Msg -> Model -> Model
 update msg m = case msg of
@@ -33,7 +39,20 @@ update msg m = case msg of
             m
     MouseClick ->
         { m | pointerLock = not m.pointerLock }
+    TogglePotential v ->
+        let opt = m.displayOptions
+        in { m | displayOptions = { opt | showPotential = v } }
 
 view : Model -> Html Msg
-view m = div [] [ renderMachine m.machine ]
+view m = div [ style "background" "white" ]
+    [ renderMachine m.displayOptions m.machine
+    , table [ style "border" "solid thin black"
+            , style "padding" "5pt"
+            , style "width" "100%" ]
+        [ caption [] [ text "Options" ]
+        , tr []
+            [ td [] [ input [ type_ "checkbox", onCheck TogglePotential ] []]
+                    , text "show slope of potential" ]
+        ]
+    ]
 
