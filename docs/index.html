@@ -82,12 +82,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
   
-  <!-- pandoc-eqnos: equation style -->
-  <style>
-    .eqnos { display: inline-block; position: relative; width: 100%; }
-    .eqnos br { display: none; }
-    .eqnos-number { position: absolute; right: 0em; top: 50%; line-height: 0; }
-  </style>
+  <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <script>
+  /* Toggle between showing and hiding the navigation menu links when the user clicks on the hamburger menu / bar icon */
+  function toggleMenu() {
+    var x = document.getElementById("myLinks");
+    if (x.style.display === "block") {
+      x.style.display = "none";
+    } else {
+      x.style.display = "block";
+    }
+  }
+  
+  </script>
 </head>
 <body>
 <header id="title-block-header">
@@ -117,6 +126,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="#bibliography">References</a></li>
 </ul>
 </nav>
+<div class="topnav">
+<a href="#home" class="active">Logo</a>
+<div id="myLinks">
+
+</div>
+<p><a href="javascript:void(0);" class="icon" onclick="toggleMenu()"> <i class="fa fa-bars"></i> </a></p>
+</div>
 <h2 id="introduction">Introduction</h2>
 <p>This is a demo of Christopher Zeeman’s catastrophe machine. Zeeman was a British mathematician who is known for his work on singularity theory. He popularised a lot of the fundamental ideas put forward by René Thom on <em>catastrophe theory</em>.</p>
 <p>Catastrophe theory describes how in dynamical systems, small changes in parameters can lead to large and sudden changes in the resulting behaviour. In particular, a system that is completely described by a smooth potential (continuous differentiable) can exert jumpy behaviour. This type of behaviour is found in many physical applications like the stability of ships, but also in optics.</p>
@@ -150,12 +166,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="hello-world"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="hello-world-1"><a href="#hello-world-1"></a><span class="cf">return</span> EXIT_SUCCESS;</span></code></pre></div>
 <p>These blocks of code can be <em>tangled</em> into source files.</p>
 <h2 id="problem">Problem</h2>
-<p>We have disk of radius <span class="math inline">\(R\)</span> at the origin, a pin on the edge of this disk at angle <span class="math inline">\(\theta\)</span>, an elastic <span class="math inline">\(a\)</span> from the pin to a fixed point on the <span class="math inline">\(x\)</span>-axis, and another elastic <span class="math inline">\(b\)</span> from the pin to a free moving pointer, see fig. <a href="#fig:system">1</a>.</p>
-<div id="fig:system" class="fignos">
+<p>We have disk of radius <span class="math inline">\(R\)</span> at the origin, a pin on the edge of this disk at angle <span class="math inline">\(\theta\)</span>, an elastic <span class="math inline">\(a\)</span> from the pin to a fixed point on the <span class="math inline">\(x\)</span>-axis, and another elastic <span class="math inline">\(b\)</span> from the pin to a free moving pointer,</p>
+<!-- see +@fig:system. -->
 <figure>
-<img src="system.svg" alt="" /><figcaption><span>Figure 1:</span> Zeeman’s catastrophe machine</figcaption>
+<img src="system.svg" alt="" /><figcaption>Zeeman’s catastrophe machine</figcaption>
 </figure>
-</div>
+<!-- {#fig:system} -->
 <p>We define the machine model by the position of the pointer and the angle of the disc.</p>
 <p><em>«machine-datatype»=</em></p>
 <div class="sourceCode" id="machine-datatype"><pre class="sourceCode elm"><code class="sourceCode elm"><span id="machine-datatype-1"><a href="#machine-datatype-1"></a><span class="kw">type</span> <span class="kw">alias</span> <span class="dt">Machine</span> <span class="op">=</span></span>
@@ -196,7 +212,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Since we’ll use the Newton method to find the roots in the derivative, we’ll also need the second derivative. Noting that,</p>
 <p><span id="eq:chainrule" class="eqnos"><span class="math display">\[\partial_{t}f = \partial_{a}f \partial_{t}a,\]</span><span class="eqnos-number">(6)</span></span> <span id="eq:double-chainrule" class="eqnos"><span class="math display">\[\partial_{tt}f = \partial_{aa}f(\partial_t a)^2 + \partial_a f \partial_{tt} a,\]</span><span class="eqnos-number">(7)</span></span> <span id="eq:pd2-la" class="eqnos"><span class="math display">\[\frac{\partial^2 l_a}{\partial \theta^2} = \frac{u\cos\theta + v\sin\theta - (\partial l_a / \partial \theta)^2}{l_a},\]</span><span class="eqnos-number">(8)</span></span></p>
 <p>and</p>
-<p><span id="eq:pd2-pot" class="eqnos"><span class="math display">\[\frac{\partial^2 V}{\partial l_a} = 1.\]</span><span class="eqnos-number">(9)</span></span></p>
+<p><span id="eq:pd2-pot" class="eqnos"><span class="math display">\[\frac{\partial^2 V}{\partial l_a^2} = 1.\]</span><span class="eqnos-number">(9)</span></span></p>
 <p><em>«derivatives»=+</em></p>
 <div class="sourceCode" id="derivatives"><pre class="sourceCode elm"><code class="sourceCode elm"><span id="derivatives-1"><a href="#derivatives-1"></a><span class="fu">d2Potential</span> : <span class="dt">Machine</span> <span class="op">-&gt;</span> <span class="dt">Float</span></span>
 <span id="derivatives-2"><a href="#derivatives-2"></a><span class="fu">d2Potential</span> { <span class="fu">f</span><span class="op">,</span> <span class="fu">p</span><span class="op">,</span> <span class="fu">theta</span> } <span class="op">=</span></span>
@@ -470,6 +486,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-15"><a href="#cb1-15"></a><span class="op">&lt;&lt;</span><span class="fu">machine</span><span class="op">-</span><span class="fu">datatype</span><span class="op">&gt;&gt;</span></span>
 <span id="cb1-16"><a href="#cb1-16"></a><span class="op">&lt;&lt;</span><span class="fu">brentish</span><span class="op">&gt;&gt;</span></span>
 <span id="cb1-17"><a href="#cb1-17"></a><span class="op">&lt;&lt;</span><span class="fu">machine</span><span class="op">-</span><span class="fu">render</span><span class="op">&gt;&gt;</span></span></code></pre></div>
+<script>
+  document.getElementById('myLinks').appendChild(
+    document.getElementById('TOC')
+  );
+</script>
 <h1 id="bibliography" class="unnumbered">References</h1>
 <div id="refs" class="references" role="doc-bibliography">
 <div id="ref-Knuth1984">

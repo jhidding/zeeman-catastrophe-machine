@@ -5,6 +5,14 @@ bibliography: lit/ref.bib
 reference-section-title: References
 ---
 
+<div class="topnav">
+<a href="#home" class="active">Logo</a>
+<div id="myLinks"></div>
+<a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
+    <i class="fa fa-bars"></i>
+</a>
+</div>
+
 # Introduction
 
 This is a demo of Christopher Zeeman's catastrophe machine. Zeeman was a British mathematician who is known for his work on singularity theory. He popularised a lot of the fundamental ideas put forward by René Thom on *catastrophe theory*.
@@ -58,9 +66,13 @@ These blocks of code can be *tangled* into source files.
 
 # Problem
 
-We have disk of radius $R$ at the origin, a pin on the edge of this disk at angle $\theta$, an elastic $a$ from the pin to a fixed point on the $x$-axis, and another elastic $b$ from the pin to a free moving pointer, see +@fig:system.
+We have disk of radius $R$ at the origin, a pin on the edge of this disk at angle $\theta$, an elastic $a$ from the pin to a fixed point on the $x$-axis, and another elastic $b$ from the pin to a free moving pointer,
 
-![Zeeman's catastrophe machine](system.svg){#fig:system}
+<!-- see +@fig:system. -->
+
+![Zeeman's catastrophe machine](system.svg)
+
+<!-- {#fig:system} -->
 
 We define the machine model by the position of the pointer and the angle of the disc.
 
@@ -126,7 +138,7 @@ $$\frac{\partial^2 l_a}{\partial \theta^2} = \frac{u\cos\theta + v\sin\theta - (
 
 and
 
-$$\frac{\partial^2 V}{\partial l_a} = 1.$${#eq:pd2-pot}
+$$\frac{\partial^2 V}{\partial l_a^2} = 1.$${#eq:pd2-pot}
 
 ``` {.elm #derivatives}
 d2Potential : Machine -> Float
@@ -460,3 +472,9 @@ import Msg exposing (Msg(..), Position)
 <<machine-render>>
 ```
 
+
+<script>
+  document.getElementById('myLinks').appendChild(
+    document.getElementById('TOC')
+  );
+</script>

@@ -13,10 +13,14 @@
 #| -------------
 #|
 #| * Pandoc >= 2.3 (with Lua filter support)
-#| * pandoc-eqnos, pandoc-fignos (`pip install`)
+#| * pandoc-citeproc, pandoc-eqnos, pandoc-fignos (`pip install`)
+#| * elm (`npm install -g elm`)
 #| * inotify-tools (for watching)
 #| * browser-sync (`npm install -g browser-sync`, for watching)
 #| * tmux (for watching)
+
+deps := pandoc pandoc-citeproc pandoc-eqnos pandoc-fignos elm
+deps += inotifywait browser-sync tmux
 
 format := markdown+fenced_code_attributes+citations
 format := $(format)+all_symbols_escapable+fenced_divs
@@ -26,6 +30,7 @@ html_args := -s --lua-filter scripts/annotate-code-blocks.lua
 html_args += --filter pandoc-fignos
 html_args += --filter pandoc-eqnos -M eqnos-warning-level:0
 html_args += --filter pandoc-citeproc
+html_args += -H static/header.html
 html_args += --syntax-definition scripts/elm.xml
 html_args += --mathjax --toc --base-header-level=2 --css style.css
 
@@ -41,10 +46,10 @@ help:
 	| fold -s -w 80
 
 #| * `weave`: build everything
-weave: docs/index.html docs/zeeman.js docs/style.css
+weave: docs/index.html docs/zeeman.js docs/style.css static/header.html
 
-docs:
-	mkdir docs; \
+docs: check-deps
+	mkdir -p docs; \
 	touch docs/.nojekyll
 
 docs/%.html: lit/%.md Makefile | docs
@@ -83,11 +88,19 @@ watch-tangle:
 	$(AT)entangled lit/*.md
 
 #| * `watch`: starts entangled, weave watch and browser-sync in a tmux
-watch:
+watch: check-deps
 	@tmux new-session make --no-print-directory watch-tangle \; \
 		split-window -v make --no-print-directory watch-weave \; \
 		split-window -v make --no-print-directory watch-browser \; \
 		select-layout even-vertical \;
+
+check-deps:
+	$(AT)for f in $(deps) ; do \
+		if ! command -v $$f > /dev/null; then \
+			echo "Missing dependency: $$f" ; \
+			false ; \
+		fi ; \
+	done
 
 #|
 #| Arguments
@@ -105,5 +118,5 @@ else
     PRINTF := @printf
 endif
 
-.PHONY: weave clean help watch-tangle watch-browser watch-weave watch
+.PHONY: weave clean help watch-tangle watch-browser watch-weave watch check-deps
 
